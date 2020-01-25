@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>JavaScript this的指向和原理 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="1. this指向什么先给出结论：函数内部的this指向的是此函数的调用者。例子： 1234567891011var primit &#x3D; &#39;window环境&#39;var obj &#x3D; &amp;#123;	primit:&#39;obj环境&#39;,	foo:function()&amp;#123;		console.log(this)		console.log(this.primit)	&amp;#125;&amp;#125;var foo &#x3D;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JavaScript this的指向和原理">
+<meta property="og:url" content="http://yoursite.com/2020/01/21/JavaScript-this%E7%9A%84%E6%8C%87%E5%90%91%E5%92%8C%E5%8E%9F%E7%90%86/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="1. this指向什么先给出结论：函数内部的this指向的是此函数的调用者。例子： 1234567891011var primit &#x3D; &#39;window环境&#39;var obj &#x3D; &amp;#123;	primit:&#39;obj环境&#39;,	foo:function()&amp;#123;		console.log(this)		console.log(this.primit)	&amp;#125;&amp;#125;var foo &#x3D;">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20191010224925202.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20191011001143214.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20191011125445345.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01hcmtzb25fMQ==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20191011162034309.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01hcmtzb25fMQ==,size_16,color_FFFFFF,t_70">
+<meta property="article:published_time" content="2020-01-21T03:41:06.000Z">
+<meta property="article:modified_time" content="2020-01-25T10:10:01.556Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="js特性">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/20191010224925202.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-JavaScript-this的指向和原理" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/01/21/JavaScript-this%E7%9A%84%E6%8C%87%E5%90%91%E5%92%8C%E5%8E%9F%E7%90%86/" class="article-date">
+  <time datetime="2020-01-21T03:41:06.000Z" itemprop="datePublished">2020-01-21</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      JavaScript this的指向和原理
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <hr>
+<h2 id="1-this指向什么"><a href="#1-this指向什么" class="headerlink" title="1. this指向什么"></a>1. this指向什么</h2><p>先给出结论：函数内部的this指向的是此函数的调用者。<br>例子：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> primit = <span class="string">'window环境'</span></span><br><span class="line"><span class="keyword">var</span> obj = &#123;</span><br><span class="line">	primit:<span class="string">'obj环境'</span>,</span><br><span class="line">	foo:<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">		<span class="built_in">console</span>.log(<span class="keyword">this</span>)</span><br><span class="line">		<span class="built_in">console</span>.log(<span class="keyword">this</span>.primit)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> foo = obj.foo</span><br><span class="line">obj.foo() <span class="comment">//输出“obj环境”</span></span><br><span class="line">foo() <span class="comment">//输出“window环境”</span></span><br></pre></td></tr></table></figure>
+<p>控制台输出：<br><img src="https://img-blog.csdnimg.cn/20191010224925202.png" alt="在这里插入图片描述"><br>分析：<br>foo和obj.foo作为引用类型的地址都指向了存储在栈中的foo函数。obj.foo()执行时，obj是foo函数的调用者，输出obj的环境（上下文）；foo()执行时，相当于执行window.foo()，此时window是foo函数的调用者，输出了window的环境。</p>
+<hr>
+<h2 id="2-为构造函数调用时this指向情况"><a href="#2-为构造函数调用时this指向情况" class="headerlink" title="2. 为构造函数调用时this指向情况"></a>2. 为构造函数调用时this指向情况</h2><p>例子：<br> <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> primit = <span class="string">'window环境'</span>, newEnvir</span><br><span class="line"><span class="keyword">var</span> obj = &#123;</span><br><span class="line">	primit:<span class="string">'obj环境'</span>,</span><br><span class="line">	foo:<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">		<span class="keyword">this</span>.primit=<span class="string">'新对象环境'</span></span><br><span class="line">		<span class="built_in">console</span>.log(<span class="keyword">this</span>)</span><br><span class="line">		newEnvir = <span class="keyword">this</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> foo1 = <span class="keyword">new</span> obj.foo()</span><br><span class="line"><span class="built_in">console</span>.log(foo1===newEnvir) <span class="comment">//true</span></span><br></pre></td></tr></table></figure><br>控制台输出：<br><img src="https://img-blog.csdnimg.cn/20191011001143214.png" alt="在这里插入图片描述"><br>分析：<br>在<code>var obj = new M()</code>中，new关键字一共做了三件事:</p>
+<ol>
+<li>创建空的简单JavaScript对象（<code>即{}</code>）</li>
+<li>obj继承M的prototype（<code>obj.__ proto__ = M.prototype</code>）</li>
+<li>M的this指向obj，并执行M的函数体（<code>执行M.call(obj)</code>）</li>
+<li>返回新对象obj</li>
+</ol>
+<p>根据new的作用，foo1作为obj.foo的调用者（new的过程中obj.foo()执行），此时obj.foo内部的this指向新对象foo1</p>
+<hr>
+<h2 id="3-为什么this指向其调用者"><a href="#3-为什么this指向其调用者" class="headerlink" title="3. 为什么this指向其调用者"></a>3. 为什么this指向其调用者</h2><p>JavaScript的数据是存储在栈内存和堆内存中的。<br>例子：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> obj = &#123;</span><br><span class="line">	aaa: <span class="string">''</span>,</span><br><span class="line">	fff: <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个obj对象在内存的存储情况如下图<br><img src="https://img-blog.csdnimg.cn/20191011125445345.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01hcmtzb25fMQ==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>obj作为基本数据类型存储在栈中，其值时存储在堆中的引用数据类型<code>对象{aaa:&#39;&#39;,fff:function(){}}</code>的<strong>地址</strong>。</p>
+<p>函数也是存储在栈中的，作为独立的值，在内部的任何的任何操作都和obj没关系，在堆内存的对象的方法fff本质也是指向在栈中的函数的<strong>地址</strong>，可以通过obj.fff访问函数。<br><img src="https://img-blog.csdnimg.cn/20191011162034309.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01hcmtzb25fMQ==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<p>函数作为单独的值，可以在任何不同的环境（上下文）执行。js允许函数内部访问当前环境的环境变量，<br>但是访问的前提是需要知道当前处于什么环境，此时this就起着<strong>告知函数当前的运行环境</strong>的作用，这是设计this的目的。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2020/01/21/JavaScript-this%E7%9A%84%E6%8C%87%E5%90%91%E5%92%8C%E5%8E%9F%E7%90%86/" data-id="ck5tlntcr000068tse5xm4f26" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/js%E7%89%B9%E6%80%A7/" rel="tag">js特性</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2020/01/21/JavaScript%E8%BF%90%E8%A1%8C%E6%9C%BA%E5%88%B6/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">JavaScript运行机制</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/js%E5%BA%95%E5%B1%82/" rel="tag">js底层</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js%E7%89%B9%E6%80%A7/" rel="tag">js特性</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/js%E5%BA%95%E5%B1%82/" style="font-size: 10px;">js底层</a> <a href="/tags/js%E7%89%B9%E6%80%A7/" style="font-size: 10px;">js特性</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/01/21/JavaScript-this%E7%9A%84%E6%8C%87%E5%90%91%E5%92%8C%E5%8E%9F%E7%90%86/">JavaScript this的指向和原理</a>
+          </li>
+        
+          <li>
+            <a href="/2020/01/21/JavaScript%E8%BF%90%E8%A1%8C%E6%9C%BA%E5%88%B6/">JavaScript运行机制</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>
